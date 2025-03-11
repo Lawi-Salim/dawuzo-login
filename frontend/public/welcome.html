@@ -15,7 +15,8 @@
     <p>Vous êtes maintenant connecté à l'application.</p>
     <button id="logoutBtn">Se déconnecter</button>
   </div>
-  <script>
+  <!-- Notez le type="module" ajouté ici -->
+  <script type="module">
     // Vérifier si l'utilisateur est connecté
     document.addEventListener('DOMContentLoaded', () => {
       const userData = JSON.parse(localStorage.getItem('userData'));
