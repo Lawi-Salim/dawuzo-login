@@ -65,9 +65,10 @@
 //            CONNECTION DEPUIS VERCEL VERS AWS
 //            CONNECTION DEPUIS VERCEL VERS AWS
 
+// Suppression des imports de modules Node.js car ce fichier s'exécute dans le navigateur
 document.addEventListener("DOMContentLoaded", () => {
-  // Configuration de l'API - Utilisez l'URL de déploiement Vercel
-  const API_URL = "/api/auth" // Changement pour un chemin relatif
+  // Configuration de l'API
+  const API_URL = "/api/auth"
 
   // Récupérer les éléments du DOM
   const loginForm = document.getElementById("loginForm")
@@ -92,6 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
+        showMessage("Envoi en cours...")
+
         const response = await fetch(`${API_URL}/index`, {
           method: "POST",
           headers: {
@@ -100,14 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(formData),
         })
 
+        const data = await response.json()
+
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({
-            message: `Erreur HTTP: ${response.status}`,
-          }))
-          throw new Error(errorData.message || "Erreur lors de l'inscription")
+          throw new Error(data.message || `Erreur HTTP: ${response.status}`)
         }
 
-        const data = await response.json()
         showMessage("Inscription réussie! Redirection vers la page de connexion...")
 
         setTimeout(() => {
@@ -131,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
+        showMessage("Connexion en cours...")
+
         const response = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: {
@@ -139,14 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(formData),
         })
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({
-            message: `Erreur HTTP: ${response.status}`,
-          }))
-          throw new Error(errorData.message || "Erreur lors de la connexion")
-        }
-
         const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || `Erreur HTTP: ${response.status}`)
+        }
 
         localStorage.setItem(
           "userData",
