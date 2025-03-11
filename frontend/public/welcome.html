@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container welcome-container">
+    <h1>Bienvenue <span id="userName"></span>!</h1>
+    <p>Vous êtes maintenant connecté à l'application.</p>
+    <button id="logoutBtn">Se déconnecter</button>
+  </div>
+  <script>
+    // Vérifier si l'utilisateur est connecté
+    document.addEventListener('DOMContentLoaded', () => {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      
+      if (!userData) {
+        // Rediriger vers la page de connexion si non connecté
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      // Afficher le nom de l'utilisateur
+      document.getElementById('userName').textContent = `${userData.prenom} ${userData.nom}`;
+      
+      // Gérer la déconnexion
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('userData');
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>
+
