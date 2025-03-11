@@ -65,10 +65,9 @@
 //            CONNECTION DEPUIS VERCEL VERS AWS
 //            CONNECTION DEPUIS VERCEL VERS AWS
 
-// Suppression des imports de modules Node.js car ce fichier s'exécute dans le navigateur
 document.addEventListener("DOMContentLoaded", () => {
   // Configuration de l'API - Utilisez l'URL de déploiement Vercel
-  const API_URL = "https://dawuzo.vercel.app/api/auth" // Ajustez cette URL selon votre déploiement
+  const API_URL = "/api/auth" // Changement pour un chemin relatif
 
   // Récupérer les éléments du DOM
   const loginForm = document.getElementById("loginForm")
@@ -78,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fonction pour afficher un message
   function showMessage(text, isError = false) {
     messageDiv.textContent = text
-    messageDiv.className = isError ? "message error" : "message success"
+    messageDiv.className = `message ${isError ? "error" : "success"}`
   }
 
   // Gérer le formulaire d'inscription
@@ -86,9 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault()
 
-      const nom = document.getElementById("nom").value.trim()
-      const prenom = document.getElementById("prenom").value.trim()
-      const password = document.getElementById("password").value
+      const formData = {
+        nom: document.getElementById("nom").value.trim(),
+        prenom: document.getElementById("prenom").value.trim(),
+        password: document.getElementById("password").value,
+      }
 
       try {
         const response = await fetch(`${API_URL}/index`, {
@@ -96,22 +97,25 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ nom, prenom, password }),
+          body: JSON.stringify(formData),
         })
 
-        const data = await response.json()
-
-        if (response.ok) {
-          showMessage("Inscription réussie! Redirection vers la page de connexion...")
-          setTimeout(() => {
-            window.location.href = "register.html"
-          }, 2000)
-        } else {
-          showMessage(data.message || "Erreur lors de l'inscription", true)
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({
+            message: `Erreur HTTP: ${response.status}`,
+          }))
+          throw new Error(errorData.message || "Erreur lors de l'inscription")
         }
+
+        const data = await response.json()
+        showMessage("Inscription réussie! Redirection vers la page de connexion...")
+
+        setTimeout(() => {
+          window.location.href = "register.html"
+        }, 2000)
       } catch (error) {
         console.error("Erreur:", error)
-        showMessage("Erreur de connexion au serveur", true)
+        showMessage(error.message || "Erreur de connexion au serveur", true)
       }
     })
   }
@@ -121,8 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault()
 
-      const nom = document.getElementById("nom").value.trim()
-      const password = document.getElementById("password").value
+      const formData = {
+        nom: document.getElementById("nom").value.trim(),
+        password: document.getElementById("password").value,
+      }
 
       try {
         const response = await fetch(`${API_URL}/login`, {
@@ -130,31 +136,35 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ nom, password }),
+          body: JSON.stringify(formData),
         })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({
+            message: `Erreur HTTP: ${response.status}`,
+          }))
+          throw new Error(errorData.message || "Erreur lors de la connexion")
+        }
 
         const data = await response.json()
 
-        if (response.ok) {
-          localStorage.setItem(
-            "userData",
-            JSON.stringify({
-              id: data.user.id,
-              nom: data.user.nom,
-              prenom: data.user.prenom,
-            }),
-          )
+        localStorage.setItem(
+          "userData",
+          JSON.stringify({
+            id: data.user.id,
+            nom: data.user.nom,
+            prenom: data.user.prenom,
+          }),
+        )
 
-          showMessage("Connexion réussie! Redirection...")
-          setTimeout(() => {
-            window.location.href = "welcome.html"
-          }, 1000)
-        } else {
-          showMessage(data.message || "Erreur lors de la connexion", true)
-        }
+        showMessage("Connexion réussie! Redirection...")
+
+        setTimeout(() => {
+          window.location.href = "welcome.html"
+        }, 1000)
       } catch (error) {
         console.error("Erreur:", error)
-        showMessage("Erreur de connexion au serveur", true)
+        showMessage(error.message || "Erreur de connexion au serveur", true)
       }
     })
   }
